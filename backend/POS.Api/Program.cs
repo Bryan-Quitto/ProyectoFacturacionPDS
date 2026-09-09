@@ -1,6 +1,7 @@
 using System.Text;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
 
@@ -11,15 +12,14 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database connection string from environment variables (Supabase requires SSL)
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
-var dbName = Environment.GetEnvironmentVariable("DB_NAME");
-var dbUser = Environment.GetEnvironmentVariable("DB_USER");
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+// Database connection string from environment variable (Single Source of Truth)
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? throw new InvalidOperationException("Missing 'DATABASE_URL' environment variable. Please configure it in .env.");
 
-var connectionString =
-    $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true;";
+var connectionString = databaseUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+                       databaseUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
+    ? BuildNpgsqlConnectionStringFromUri(databaseUrl)
+    : databaseUrl;
 
 builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
 
@@ -72,6 +72,9 @@ builder.Services.AddCors(options =>
 });
 
 // Add services to the container.
+builder.Services.AddDbContext<POS.Infrastructure.Persistence.ApplicationDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(options =>
@@ -123,4 +126,42 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+// Apply seeds if configured/available
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<POS.Infrastructure.Persistence.ApplicationDbContext>();
+    try
+    {
+        await POS.Infrastructure.Persistence.Seeders.DatabaseSeeder.SeedAsync(dbContext);
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning(ex, "Seeding database skipped or failed (e.g. database not migrated yet).");
+    }
+}
+
 app.Run();
+return;
+
+static string BuildNpgsqlConnectionStringFromUri(string uriString)
+{
+    var uri = new Uri(uriString);
+    var userInfo = uri.UserInfo.Split(':');
+    var user = Uri.UnescapeDataString(userInfo[0]);
+    var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty;
+    var port = uri.Port > 0 ? uri.Port : 5432;
+    var database = uri.AbsolutePath.TrimStart('/');
+
+    var builder = new Npgsql.NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = port,
+        Database = database,
+        Username = user,
+        Password = password,
+        SslMode = Npgsql.SslMode.Require
+    };
+
+    return builder.ConnectionString;
+}
