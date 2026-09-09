@@ -239,7 +239,10 @@ public class SaleOrderService : ISaleOrderService
             order.Subtotal,
             order.TaxAmount,
             order.TotalAmount,
-            detailsDto
+            detailsDto,
+            order.Customer?.Email ?? string.Empty,
+            order.Customer?.Address ?? string.Empty,
+            order.Customer?.PhoneNumber ?? string.Empty
         );
     }
 }

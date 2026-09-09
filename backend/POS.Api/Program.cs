@@ -3,7 +3,9 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using POS.Api.Middlewares;
 using POS.Application;
+using POS.Infrastructure;
 using QuestPDF.Infrastructure;
 
 DotNetEnv.Env.TraversePath().Load();
@@ -80,6 +82,7 @@ builder.Services.AddScoped<POS.Application.Common.Interfaces.IApplicationDbConte
     sp.GetRequiredService<POS.Infrastructure.Persistence.ApplicationDbContext>());
 
 builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -128,6 +131,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -28,4 +28,8 @@ public record SaleOrderResponseDto(
     decimal Subtotal,
     decimal TaxAmount,
     decimal TotalAmount,
-    IReadOnlyList<SaleOrderDetailResponseDto> Details);
+    IReadOnlyList<SaleOrderDetailResponseDto> Details,
+    string CustomerEmail = "",
+    string CustomerAddress = "",
+    string CustomerPhoneNumber = "");
+
