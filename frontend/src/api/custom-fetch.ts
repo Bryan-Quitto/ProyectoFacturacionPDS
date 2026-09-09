@@ -57,13 +57,27 @@ export const customFetch = async <T>(
   }
 
   if (response.status === 204) {
-    return undefined as T;
+    return {
+      status: response.status,
+      data: undefined,
+      headers: response.headers,
+    } as T;
   }
 
   const contentType = response.headers.get('content-type') ?? '';
   if (contentType.includes('application/pdf') || contentType.includes('application/octet-stream')) {
-    return (await response.blob()) as T;
+    const blob = await response.blob();
+    return {
+      status: response.status,
+      data: blob,
+      headers: response.headers,
+    } as T;
   }
 
-  return (await response.json()) as T;
+  const data = await response.json();
+  return {
+    status: response.status,
+    data,
+    headers: response.headers,
+  } as T;
 };

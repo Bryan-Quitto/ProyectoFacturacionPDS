@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "api:generate": "orval"
+    "api:export": "node scripts/openapi-export.mjs",
+    "api:gen": "orval --config ./orval.config.ts",
+    "api:generate": "npm run api:export && npm run api:gen"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
