@@ -3,6 +3,7 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using POS.Application;
 using QuestPDF.Infrastructure;
 
 DotNetEnv.Env.TraversePath().Load();
@@ -74,6 +75,11 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 builder.Services.AddDbContext<POS.Infrastructure.Persistence.ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+builder.Services.AddScoped<POS.Application.Common.Interfaces.IApplicationDbContext>(sp =>
+    sp.GetRequiredService<POS.Infrastructure.Persistence.ApplicationDbContext>());
+
+builder.Services.AddApplicationServices();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

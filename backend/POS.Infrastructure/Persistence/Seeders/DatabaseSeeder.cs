@@ -45,7 +45,7 @@ public static class DatabaseSeeder
                 new()
                 {
                     Id = Guid.NewGuid(),
-                    IdentificationNumber = "0923456789",
+                    IdentificationNumber = "0923456784",
                     FullName = "Maria Rodriguez",
                     Email = "maria.rodriguez@example.com",
                     Address = "Av. 9 de Octubre y Malecon, Guayaquil",
@@ -56,7 +56,7 @@ public static class DatabaseSeeder
                 new()
                 {
                     Id = Guid.NewGuid(),
-                    IdentificationNumber = "1803456781",
+                    IdentificationNumber = "1803456787",
                     FullName = "Juan Lopez",
                     Email = "juan.lopez@example.com",
                     Address = "Calle Cevallos y Montalvo, Ambato",

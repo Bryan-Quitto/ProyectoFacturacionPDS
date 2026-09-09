@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using POS.Application.Common.Interfaces;
 using POS.Domain.Entities;
 
 namespace POS.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
