@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useGetApiV1Products } from '../../api/generated/posApi';
 import type { ProductResponseDto } from '../../api/generated/model';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -73,9 +74,9 @@ export const ProductSearchModal: React.FC<ProductSearchModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
+      className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
       aria-labelledby="product-modal-title"
@@ -303,6 +304,7 @@ export const ProductSearchModal: React.FC<ProductSearchModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

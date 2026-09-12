@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useGetApiV1Customers } from '../../api/generated/posApi';
 import type { CustomerResponseDto } from '../../api/generated/model';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -65,9 +66,9 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
+      className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
       aria-labelledby="customer-modal-title"
@@ -239,6 +240,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

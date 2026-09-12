@@ -157,12 +157,15 @@ export const InvoicesView: React.FC = () => {
               <h2 className="text-xl font-bold text-slate-900 leading-tight">
                 Historial de Facturas Emitidas
               </h2>
-              <span className="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                Vista 4 — POS
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                {debouncedTerm
+                  ? `${totalCount} ${totalCount === 1 ? 'resultado encontrado' : 'resultados encontrados'}`
+                  : `${totalCount} ${totalCount === 1 ? 'comprobante registrado' : 'comprobantes registrados'}`}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Consulte facturas registradas, inspeccione su detalle y visualice o descargue el comprobante oficial en PDF
+              Consulte facturas registradas, inspeccione su detalle y visualice o descargue el comprobante en PDF
             </p>
           </div>
         </div>
@@ -327,7 +330,7 @@ export const InvoicesView: React.FC = () => {
                             onClick={(e) => handleDirectDownload(e, order)}
                             disabled={isRowDownloading}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-200 rounded-lg transition-colors cursor-pointer shadow-2xs disabled:cursor-not-allowed disabled:opacity-50"
-                            title="Descargar comprobante PDF oficial"
+                            title="Descargar comprobante en PDF"
                           >
                             {isRowDownloading ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />

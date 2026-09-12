@@ -101,10 +101,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       {/* Pie de Página */}
       <footer className="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Punto de Venta POS © 2026 — Todos los derechos reservados</span>
+          <span>Proyecto Académico — Patrones de Diseño de Software (PDS) · UTA 2026</span>
           <div className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Conectado a POS.Api v1.0</span>
+            <span>Servicio en línea</span>
           </div>
         </div>
       </footer>

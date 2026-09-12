@@ -48,38 +48,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authState, setAuthState] = useState<{ token: string | null; user: AuthUser | null }>(
     () => getInitialAuthState()
   );
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const isLoading = false;
 
   const login = useCallback(async (credentials: LoginRequestDto): Promise<void> => {
-    setIsLoading(true);
-    try {
-      const response = await postApiV1AuthLogin(credentials);
+    const response = await postApiV1AuthLogin(credentials);
 
-      // Handle response.data according to the API contract
-      const responsePayload = 'data' in response ? response.data : (response as unknown as LoginResponseDto);
+    // Handle response.data according to the API contract
+    const responsePayload = 'data' in response ? response.data : (response as unknown as LoginResponseDto);
 
-      if (!responsePayload || !('token' in responsePayload)) {
-        throw new Error('La respuesta de autenticación no contiene un token válido.');
-      }
-
-      const token = responsePayload.token;
-      const user: AuthUser = {
-        id: responsePayload.userId,
-        username: responsePayload.username,
-        fullName: responsePayload.fullName,
-        role: 'Vendedor',
-      };
-
-      setAuthToken(token);
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-
-      setAuthState({
-        token,
-        user,
-      });
-    } finally {
-      setIsLoading(false);
+    if (!responsePayload || !('token' in responsePayload)) {
+      throw new Error('La respuesta de autenticación no contiene un token válido.');
     }
+
+    const token = responsePayload.token;
+    const user: AuthUser = {
+      id: responsePayload.userId,
+      username: responsePayload.username,
+      fullName: responsePayload.fullName,
+      role: 'Vendedor',
+    };
+
+    setAuthToken(token);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+
+    setAuthState({
+      token,
+      user,
+    });
   }, []);
 
   const logout = useCallback((): void => {

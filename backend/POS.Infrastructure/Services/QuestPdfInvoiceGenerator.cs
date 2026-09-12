@@ -245,7 +245,7 @@ public class QuestPdfInvoiceGenerator : IInvoicePdfGenerator
     {
         container.BorderTop(1).BorderColor(Colors.Grey.Lighten2).PaddingTop(5).Row(row =>
         {
-            row.RelativeItem().Text("Comprobante de venta emitido electrónicamente por el Sistema POS. Válido para fines tributarios y contables.")
+            row.RelativeItem().Text("Comprobante de venta emitido con fines demostrativos y académicos por el Sistema POS. Sin validez tributaria ni contable.")
                 .FontSize(7.5f)
                 .Italic()
                 .FontColor(Colors.Grey.Medium);

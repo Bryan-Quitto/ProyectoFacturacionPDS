@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useGetApiV1SaleOrdersIdPdf } from '../../api/generated/posApi';
 import { X, Download, FileText, Loader2, AlertCircle, Printer } from 'lucide-react';
 
@@ -60,16 +61,16 @@ export const InvoicePdfModal: React.FC<InvoicePdfModalProps> = ({
   const fileName = `Factura-${orderNumber || 'comprobante'}.pdf`;
   const errorMessage = error ? 'Ocurrió un error al generar el comprobante PDF.' : null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
+      className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
       aria-labelledby="pdf-modal-title"
     >
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden flex flex-col max-h-[95vh]">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden flex flex-col h-[90vh] max-h-[850px]">
         {/* Cabecera del Modal */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-white shrink-0 relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shadow-xs">
               <FileText className="w-5 h-5" />
@@ -77,7 +78,7 @@ export const InvoicePdfModal: React.FC<InvoicePdfModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 id="pdf-modal-title" className="text-base font-bold text-slate-900">
-                  Comprobante de Venta Oficial
+                  Comprobante de Venta
                 </h3>
                 {orderNumber && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold font-mono bg-blue-50 text-blue-700 border border-blue-200">
@@ -86,7 +87,7 @@ export const InvoicePdfModal: React.FC<InvoicePdfModalProps> = ({
                 )}
               </div>
               <p className="text-xs text-slate-500">
-                Visualice, imprima o descargue la factura electrónica en formato PDF
+                Visualice, imprima o descargue el comprobante de venta en formato PDF
               </p>
             </div>
           </div>
@@ -102,9 +103,9 @@ export const InvoicePdfModal: React.FC<InvoicePdfModalProps> = ({
         </div>
 
         {/* Cuerpo del Visor */}
-        <div className="p-4 sm:p-6 flex-1 flex flex-col min-h-[500px] justify-center items-center bg-slate-100/60">
+        <div className="p-4 sm:p-6 flex-1 min-h-0 flex flex-col overflow-hidden bg-slate-100/60">
           {isLoading && (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="flex-1 flex flex-col items-center justify-center py-16 text-center">
               <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 shadow-sm">
                 <Loader2 className="w-8 h-8 animate-spin" />
               </div>
@@ -112,13 +113,13 @@ export const InvoicePdfModal: React.FC<InvoicePdfModalProps> = ({
                 Generando documento PDF con QuestPDF...
               </p>
               <p className="text-xs text-slate-500 mt-1">
-                Por favor espere mientras preparamos el comprobante tributario.
+                Por favor espere mientras preparamos el comprobante de venta.
               </p>
             </div>
           )}
 
           {!isLoading && errorMessage && (
-            <div className="flex flex-col items-center justify-center py-16 text-center max-w-md">
+            <div className="flex-1 flex flex-col items-center justify-center py-16 text-center max-w-md mx-auto">
               <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4 shadow-sm">
                 <AlertCircle className="w-8 h-8" />
               </div>
@@ -139,10 +140,10 @@ export const InvoicePdfModal: React.FC<InvoicePdfModalProps> = ({
           )}
 
           {!isLoading && !errorMessage && blobUrl && (
-            <div className="w-full h-full flex flex-col flex-1">
+            <div className="w-full h-full flex-1 min-h-0 rounded-xl overflow-hidden border border-slate-300 bg-white shadow-inner">
               <iframe
                 src={blobUrl}
-                className="w-full h-[600px] rounded-xl border border-slate-300 bg-white shadow-inner"
+                className="w-full h-full border-0 block"
                 title={`Comprobante de Venta ${orderNumber || ''}`}
               />
             </div>
@@ -150,7 +151,7 @@ export const InvoicePdfModal: React.FC<InvoicePdfModalProps> = ({
         </div>
 
         {/* Pie del Modal / Acciones */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="px-6 py-4 border-t border-slate-200 bg-white shrink-0 relative z-10 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs text-slate-500 text-center sm:text-left">
             <Printer className="w-4 h-4 text-slate-400 shrink-0" />
             <span>
@@ -180,6 +181,7 @@ export const InvoicePdfModal: React.FC<InvoicePdfModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

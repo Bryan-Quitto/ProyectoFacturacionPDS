@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useGetApiV1SaleOrdersId } from '../../api/generated/posApi';
 import type { SaleOrderResponseDto } from '../../api/generated/model';
 import {
@@ -73,16 +74,16 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
+      className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
       aria-labelledby="invoice-detail-title"
     >
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Cabecera del Modal */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-white shrink-0 relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shadow-xs">
               <Receipt className="w-5 h-5" />
@@ -120,7 +121,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
               <p className="text-sm font-semibold text-slate-800">Cargando información de la factura...</p>
-              <p className="text-xs text-slate-500 mt-0.5">Recuperando ítems y datos tributarios</p>
+              <p className="text-xs text-slate-500 mt-0.5">Recuperando ítems y datos de la orden</p>
             </div>
           )}
 
@@ -131,7 +132,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
               </div>
               <p className="text-sm font-bold text-slate-900">No se pudo cargar la factura</p>
               <p className="text-xs text-slate-500 mt-1 max-w-sm">
-                Hubo un inconveniente al consultar los detalles de la orden en el servidor.
+                Hubo un inconveniente al cargar los detalles de la factura.
               </p>
             </div>
           )}
@@ -310,7 +311,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
         </div>
 
         {/* Pie del Modal / Acciones */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50/80 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50/80 shrink-0 relative z-10 flex items-center justify-between">
           <button
             type="button"
             onClick={onClose}
@@ -331,6 +332,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

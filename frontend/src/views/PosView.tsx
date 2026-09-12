@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { CustomerSearchModal } from '../components/pos/CustomerSearchModal';
 import { ProductSearchModal } from '../components/pos/ProductSearchModal';
+import { ConfirmModal } from '../components/common/ConfirmModal';
 import { postApiV1SaleOrders } from '../api/generated/posApi';
 import type { CustomerResponseDto, ProductResponseDto, CreateSaleOrderDto } from '../api/generated/model';
 import {
@@ -60,6 +61,7 @@ export const PosView: React.FC = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerResponseDto | null>(null);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState<boolean>(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false);
   const [productModalMode, setProductModalMode] = useState<'add' | 'replace'>('add');
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
 
@@ -241,11 +243,13 @@ export const PosView: React.FC = () => {
   // Cancelar Orden
   const handleCancelOrder = () => {
     if (watchedItems.length > 0 || selectedCustomer) {
-      const confirmed = window.confirm(
-        '¿Desea cancelar la orden en curso? Se limpiarán el cliente y todos los productos agregados.'
-      );
-      if (!confirmed) return;
+      setIsCancelModalOpen(true);
+      return;
     }
+    toast.info('No hay productos ni cliente en la orden para cancelar.', 'Orden vacía');
+  };
+
+  const handleConfirmCancelOrder = () => {
     reset({ customerId: '', items: [] });
     setSelectedCustomer(null);
     toast.info('Se canceló la orden y se restableció el formulario.', 'Orden reiniciada');
@@ -307,10 +311,10 @@ export const PosView: React.FC = () => {
         const status = errorRecord.status;
 
         if (status === 409) {
-          errorTitle = 'Conflicto de Concurrencia (409)';
+          errorTitle = 'Inventario modificado por otra venta';
           errorMessage =
             (typeof errorRecord.detail === 'string' && errorRecord.detail) ||
-            'El stock de uno o más productos fue modificado por otra transacción simultánea. Por favor, revise el stock disponible e intente de nuevo.';
+            'El inventario de uno o más productos fue modificado recientemente por otra venta. Por favor, revise el stock disponible e intente de nuevo.';
         } else if (status === 400) {
           errorTitle =
             (typeof errorRecord.title === 'string' && errorRecord.title) || 'Error de Validación';
@@ -501,7 +505,7 @@ export const PosView: React.FC = () => {
                 htmlFor="customer-address"
                 className="block text-xs font-semibold text-slate-600 mb-1"
               >
-                Dirección Fiscal
+                Dirección del Cliente
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -676,20 +680,20 @@ export const PosView: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 text-slate-800 font-bold text-sm mb-2">
                 <Receipt className="w-4 h-4 text-blue-600" />
-                <span>Normativa y Políticas de Facturación</span>
+                <span>Información de Venta</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                Conforme al Servicio de Rentas Internas (SRI) del Ecuador, la tarifa del IVA aplicada a productos gravados es del <strong>15%</strong>.
-                Las ventas son transaccionales e indivisibles; el stock se descuenta en el servidor de forma concurrente y atómica.
+                Tarifa de IVA vigente (15%) calculada automáticamente sobre los productos gravados.
+                Las existencias se descuentan del inventario al confirmar la transacción.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs text-slate-500">
                 <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
-                  <span className="font-semibold text-slate-700 block mb-0.5">Control de Concurrencia</span>
-                  <span>Protección optimista contra sobreventas mediante tokens PostgreSQL (<code>xmin</code>).</span>
+                  <span className="font-semibold text-slate-700 block mb-0.5">Control de Inventario</span>
+                  <span>Actualización en tiempo real para evitar ventas de productos sin disponibilidad.</span>
                 </div>
                 <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
-                  <span className="font-semibold text-slate-700 block mb-0.5">Validez Fiscal</span>
-                  <span>Toda orden emitida generará su respectivo comprobante oficial en PDF.</span>
+                  <span className="font-semibold text-slate-700 block mb-0.5">Comprobante de Venta</span>
+                  <span>Al emitir la orden se genera un comprobante descargable en formato PDF.</span>
                 </div>
               </div>
             </div>
@@ -792,6 +796,18 @@ export const PosView: React.FC = () => {
         onSelectProduct={handleSelectProduct}
         currentProductIds={currentProductIds}
         replacingProductId={replacingProductId}
+      />
+
+      {/* Modal de Confirmación para Cancelar Orden */}
+      <ConfirmModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleConfirmCancelOrder}
+        title="¿Cancelar orden en curso?"
+        message="Se eliminarán el cliente seleccionado y todos los productos agregados a esta venta. Esta acción no se puede deshacer."
+        confirmText="Sí, cancelar orden"
+        cancelText="Continuar venta"
+        variant="danger"
       />
     </div>
   );
