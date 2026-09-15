@@ -23,7 +23,7 @@ public class ProductService : IProductService
         pageNumber = pageNumber < 1 ? 1 : pageNumber;
         pageSize = pageSize < 1 ? 10 : (pageSize > 100 ? 100 : pageSize);
 
-        // Strict filter (Req 8): only active products with stock > 0
+        // Strict filter: only active products with stock > 0
         var query = _context.Products
             .AsNoTracking()
             .Where(p => p.IsActive && p.StockQuantity > 0);

@@ -40,5 +40,14 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.Property(c => c.CreatedAtUtc)
             .IsRequired();
+
+        builder.ToTable(t =>
+        {
+            t.HasCheckConstraint("CK_Customer_PhoneNumber_DigitsOnly", "\"PhoneNumber\" ~ '^[0-9]{7,15}$'");
+            t.HasCheckConstraint("CK_Customer_Identification_DigitsOnly", "\"IdentificationNumber\" ~ '^[0-9]{10,13}$'");
+            t.HasCheckConstraint("CK_Customer_Email_Format", "\"Email\" ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'");
+            t.HasCheckConstraint("CK_Customer_FullName_NotEmpty", "trim(\"FullName\") <> ''");
+            t.HasCheckConstraint("CK_Customer_Address_NotEmpty", "trim(\"Address\") <> ''");
+        });
     }
 }

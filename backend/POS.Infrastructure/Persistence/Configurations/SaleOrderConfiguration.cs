@@ -45,5 +45,10 @@ public class SaleOrderConfiguration : IEntityTypeConfiguration<SaleOrder>
             .WithMany(u => u.SaleOrders)
             .HasForeignKey(o => o.SellerId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.ToTable(t =>
+        {
+            t.HasCheckConstraint("CK_SaleOrder_Amounts_NonNegative", "\"Subtotal\" >= 0 AND \"TaxAmount\" >= 0 AND \"TotalAmount\" >= 0");
+        });
     }
 }

@@ -48,6 +48,13 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.xmin)
             .IsRowVersion();
 
-        builder.ToTable(t => t.HasCheckConstraint("CK_Product_StockQuantity_NonNegative", "\"StockQuantity\" >= 0"));
+        builder.ToTable(t =>
+        {
+            t.HasCheckConstraint("CK_Product_StockQuantity_NonNegative", "\"StockQuantity\" >= 0");
+            t.HasCheckConstraint("CK_Product_UnitPrice_NonNegative", "\"UnitPrice\" >= 0");
+            t.HasCheckConstraint("CK_Product_TaxRate_Range", "\"TaxRate\" >= 0 AND \"TaxRate\" <= 100");
+            t.HasCheckConstraint("CK_Product_Code_NotEmpty", "trim(\"Code\") <> ''");
+            t.HasCheckConstraint("CK_Product_Name_NotEmpty", "trim(\"Name\") <> ''");
+        });
     }
 }
