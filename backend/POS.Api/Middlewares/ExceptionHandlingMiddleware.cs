@@ -108,6 +108,28 @@ public class ExceptionHandlingMiddleware
                 problemDetails.Type = "https://httpstatuses.com/409";
                 break;
 
+            case DbUpdateException dbEx:
+                problemDetails.Status = StatusCodes.Status500InternalServerError;
+                problemDetails.Title = "Error de conexión o base de datos";
+                problemDetails.Detail = "No se pudo completar la operación en la base de datos. Verifique su conexión a internet y el estado del servicio.";
+                problemDetails.Type = "https://httpstatuses.com/500";
+                if (_environment.IsDevelopment())
+                {
+                    problemDetails.Extensions["debugMessage"] = dbEx.GetBaseException().Message;
+                }
+                break;
+
+            case Npgsql.NpgsqlException npgsqlEx:
+                problemDetails.Status = StatusCodes.Status503ServiceUnavailable;
+                problemDetails.Title = "Base de datos no disponible";
+                problemDetails.Detail = "No se pudo establecer comunicación con la base de datos en la nube. Verifique su conexión a internet.";
+                problemDetails.Type = "https://httpstatuses.com/503";
+                if (_environment.IsDevelopment())
+                {
+                    problemDetails.Extensions["debugMessage"] = npgsqlEx.Message;
+                }
+                break;
+
             case UnauthorizedAccessException authEx:
                 problemDetails.Status = StatusCodes.Status401Unauthorized;
                 problemDetails.Title = "No autorizado";
@@ -118,10 +140,12 @@ public class ExceptionHandlingMiddleware
             default:
                 problemDetails.Status = StatusCodes.Status500InternalServerError;
                 problemDetails.Title = "Error interno del servidor";
-                problemDetails.Detail = _environment.IsDevelopment()
-                    ? $"{exception.Message}\n{exception.StackTrace}"
-                    : "Ha ocurrido un error interno en el servidor. Por favor, contacte al administrador.";
+                problemDetails.Detail = "Ha ocurrido un error inesperado al procesar la solicitud. Por favor, intente nuevamente.";
                 problemDetails.Type = "https://httpstatuses.com/500";
+                if (_environment.IsDevelopment())
+                {
+                    problemDetails.Extensions["debugMessage"] = exception.Message;
+                }
                 break;
         }
 

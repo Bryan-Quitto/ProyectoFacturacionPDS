@@ -38,19 +38,28 @@ export const customFetch = async <T>(
   options: RequestInit = {}
 ): Promise<T> => {
   const token = getStoredToken();
-
-  const response = await fetch(normalizeUrl(url), {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers ?? {}),
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(normalizeUrl(url), {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options.headers ?? {}),
+      },
+    });
+  } catch {
+    throw {
+      status: 0,
+      title: 'Error de conexión',
+      detail: 'No se pudo establecer comunicación con el servidor. Verifique su conexión a internet.',
+    };
+  }
 
   if (!response.ok) {
     const problem = await response.json().catch(() => ({
-      title: 'Error desconocido',
+      title: 'Error en el servidor',
+      detail: 'El servidor no pudo procesar la solicitud en este momento.',
       status: response.status,
     }));
     throw problem;

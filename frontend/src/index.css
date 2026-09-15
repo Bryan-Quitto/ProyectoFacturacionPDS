@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Oculta el icono nativo de mostrar/ocultar contraseña del navegador (Edge Legacy/IE con ::-ms-reveal)
+   para que no aparezca junto al icono personalizado. */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}

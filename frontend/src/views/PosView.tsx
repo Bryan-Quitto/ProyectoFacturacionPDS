@@ -321,11 +321,34 @@ export const PosView: React.FC = () => {
           errorMessage =
             (typeof errorRecord.detail === 'string' && errorRecord.detail) ||
             'Verifique que los datos de la orden sean correctos y que haya suficiente inventario disponible.';
+        } else if (status === 503 || status === 500) {
+          errorTitle =
+            (typeof errorRecord.title === 'string' && errorRecord.title) || 'Error de Conexión';
+          errorMessage =
+            (typeof errorRecord.detail === 'string' && errorRecord.detail) ||
+            'No se pudo comunicar con la base de datos en la nube. Verifique su conexión a internet e intente de nuevo.';
+        } else if (status === 0) {
+          errorTitle =
+            (typeof errorRecord.title === 'string' && errorRecord.title) || 'Sin Conexión';
+          errorMessage =
+            (typeof errorRecord.detail === 'string' && errorRecord.detail) ||
+            'No se pudo establecer comunicación con el servidor. Verifique su conexión a internet.';
         } else if (typeof errorRecord.detail === 'string' && errorRecord.detail) {
           errorMessage = errorRecord.detail;
         } else if (typeof errorRecord.title === 'string' && errorRecord.title) {
           errorMessage = errorRecord.title;
         }
+      }
+
+      // Sanitizar cualquier mensaje que contenga trazas técnicas en inglés o de EF Core
+      if (
+        errorMessage.includes('Microsoft.') ||
+        errorMessage.includes('Exception') ||
+        errorMessage.includes('at ') ||
+        errorMessage.includes('stack')
+      ) {
+        errorMessage =
+          'Ocurrió una interrupción en la comunicación con la base de datos. Por favor, verifique su conexión a internet e intente nuevamente.';
       }
 
       toast.error(errorMessage, errorTitle);

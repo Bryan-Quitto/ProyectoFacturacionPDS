@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { Store, User, Lock, LogIn, Loader2, AlertCircle } from 'lucide-react';
+import { Store, User, Lock, LogIn, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'El nombre de usuario es requerido'),
@@ -17,6 +17,7 @@ export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const toast = useToast();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -46,6 +47,15 @@ export const LoginPage: React.FC = () => {
         } else if (typeof errorRecord.message === 'string' && errorRecord.message.trim().length > 0) {
           message = errorRecord.message;
         }
+      }
+
+      if (
+        message.includes('Microsoft.') ||
+        message.includes('Exception') ||
+        message.includes('at ') ||
+        message.includes('stack')
+      ) {
+        message = 'No se pudo comunicar con el servidor o la base de datos. Verifique su conexión a internet.';
       }
       setErrorMessage(message);
       toast.error(message, 'Error de inicio de sesión');
@@ -129,17 +139,27 @@ export const LoginPage: React.FC = () => {
                 </div>
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   disabled={isSubmitting}
                   placeholder="••••••••"
-                  className={`block w-full pl-10 pr-3 py-2.5 sm:text-sm rounded-lg border transition-colors outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed ${
+                  className={`block w-full pl-10 pr-10 py-2.5 sm:text-sm rounded-lg border transition-colors outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed ${
                     errors.password
                       ? 'border-rose-300 text-rose-900 placeholder-rose-300 focus:ring-rose-500 focus:border-rose-500'
                       : 'border-slate-300 text-slate-900 placeholder-slate-400'
                   }`}
                   {...register('password')}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  disabled={isSubmitting}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-pressed={showPassword}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
               {errors.password && (
                 <p className="mt-1.5 text-xs text-rose-600 font-medium">
